@@ -12,3 +12,20 @@ color: #00B7FF;
   border: 1px solid #eee;
   -webkit-border-radius: 5px;
   -webkit-box-shadow: 0 1px 2px #ddd;
+}
+
+#menu {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 12px;
+  color: #888;
+}
+#menu .name::after {
+  content: ' -';
+}
+#menu a {
+  text-decoration: none;
+  margin-left: 5px;
+  color: black;
+}
