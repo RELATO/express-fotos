@@ -56,3 +56,11 @@ exports.download = function(dir) {
         });
     };
 };
+
+exports.photos = function(req, res, next) {
+    var page = req.page;
+    Photo.getRange(page.from, page.to, function(err, photos) {
+        if (err) return next(err);
+        res.send(photos);
+    });
+};

@@ -15,7 +15,8 @@ var express = require('express')
   , page = require('./lib/middleware/page')
   , validate = require('./lib/middleware/validate')
   , ensure = require('./lib/middleware/ensure')
-  , messages = require('./lib/messages');
+  , messages = require('./lib/messages')
+  , api = require('./routes/api');
 
 // express setup
 var app = express();
@@ -25,7 +26,6 @@ app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.set('photos', __dirname + '/public/photos');
-  
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.static(__dirname + '/public'));
@@ -36,8 +36,11 @@ app.configure(function(){
   app.use(express.cookieSession());
   app.use(messages);
   app.use(user);
+  app.use('/api', api.auth);
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use(routes.notfound);
+  app.use(routes.error);
 });
 
 app.configure('development', function(){
@@ -58,6 +61,11 @@ app.post('/upload', validate.required('photo[name]')
 app.get('/photo/:id/download' , ensure.authenticated
                               , photos.download(app.get('photos')));
 app.get('/:page?', page(Photo.count), photos.list);
+
+app.get('/api/user/:id', api.user);
+app.get('/api/photo/:id', api.photo);
+app.post('/api/photo', photos.submit(app.get('photos')));
+app.get('/api/photos/:page?', page(Photo.count), api.photos);
 
 // do it
 http.createServer(app).listen(app.get('port'), function(){
