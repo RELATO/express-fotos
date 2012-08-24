@@ -5,7 +5,6 @@ block content
   p Express stock photo application.
 
   #photos
-  for photo in photos
-    .photo
-      h2= photo.name
-      img(src='/photos/#{photo.path}')
+    for photo in photos
+        include show
+    include ../pager

@@ -1,28 +1,58 @@
 var photos = [];
 
-photos.push({
-  name: 'Golden Gate Bridge',
-  path: 'golden_gate_bridge.jpg'
-});
+var Photo = require('../lib/photo')
+  , path = require('path')
+  , fs = require('fs')
+  , join = path.join;
 
-photos.push({
-  name: 'Dreamforce',
-  path: 'dreamforce.jpg'
-});
+exports.list = function(req, res, next) {
+  var page = req.page;
 
-photos.push({
-  name: 'One Lobby',
-  path: 'one-lobby.jpg'
-});
+  Photo.getRange(page.from, page.to, function(err, photos) {
+    if (err) return next(err);
+    
+    res.render('photos', {
+      title: 'Photos',
+      photos: photos
+    });
+  }); 
+};
 
-photos.push({
-  name: 'Fredericton City Hall',
-  path: 'fredericton_city_hall.jpg'
-});
+exports.form = function(req, res) {
+  res.render('photos/upload', {
+     title: 'Photo upload'
+   });
+};
 
-exports.list = function(req, res) {
-  res.render('photos', {
-    title: 'Photos',
-    photos: photos
-  });
+exports.submit = function(dir) {
+  return function(req, res, next) {
+    var img = req.files.photo.image
+      , name = req.body.photo.name || img.name
+      , path = join(dir, img.name);
+
+    fs.rename(img.path, path, function(err) {
+      if (err) return next(err);
+      var photo = new Photo({
+        name: name,
+        path: img.name,
+        user: req.user.id
+      });
+      
+      photo.save(function(err) {
+        if (err) return next(err);
+        res.redirect('/');
+      });
+    });
+  };
+};
+
+exports.download = function(dir) {
+    return function(req, res, next) {
+        var id = req.params.id;
+        Photo.get(id, function(err, photo) {
+            if (err) return next(err);
+            var path = join(dir, photo.path);
+            res.download(path, 'photo-' + id + '-large.png');
+        });
+    };
 };
