@@ -48,7 +48,7 @@ app.configure('development', function(){
 });
 
 // routes
-//app.get('/', routes.index);
+app.get('/', routes.index);
 app.get('/login', login.form);
 app.post('/login', login.submit);
 app.get('/logout', login.logout);
